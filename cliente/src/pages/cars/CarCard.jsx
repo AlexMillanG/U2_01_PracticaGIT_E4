@@ -1,14 +1,17 @@
 import React from 'react'
 
-export const CarCard = ({ car }) => {
+export const CarCard = ({ car, onEdit }) => {
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 space-y-2">
-      <span className="block font-bold text-xl text-gray-900">Nissan</span>
-      <span className="block text-lg text-gray-700">Versa</span>
-      <span className="block text-lg text-gray-700">Azul</span>
-      <span className="block text-lg text-gray-700">Placa XYZ123</span>
+      <span className="block font-bold text-xl text-gray-900">{car.marca}</span>
+      <span className="block text-lg text-gray-700">{car.modelo}</span>
+      <span className="block text-lg text-gray-700">{car.color}</span>
+      <span className="block text-lg text-gray-700">Placa {car.numeroPlaca}</span>
       <div className="flex items-center justify-around pt-4">
-        <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg">
+        <button
+          className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg"
+          onClick={() => onEdit(car)}
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"
             viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.3 4.8l2.9 2.9M7 7H4a1 1 0 0 0-1 1v10a1 
@@ -28,5 +31,5 @@ export const CarCard = ({ car }) => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
