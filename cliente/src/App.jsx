@@ -2,9 +2,9 @@ import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import { Home } from './pages/Home'
 import Navbar from './shared/Navbar'
-import { Proveedor } from './pages/compPrueba/Proveedor'
 import { Automoviles } from './pages/compPrueba/Automoviles'
 import { Cars } from './pages/cars/Cars'
+import { Provider } from './pages/Provider/Provider'
 
 function App() {
 
@@ -14,7 +14,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
 
-      <Route path="/proveedores" element={<Proveedor />} />
+      <Route path="/proveedores" element={<Provider />} />
       <Route path="/automoviles" element={<Automoviles />} />
 
       {/* <Route path="/about" element={<About />} />
