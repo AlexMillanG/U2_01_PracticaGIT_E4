@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.swal2-popup .swal2-actions button {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  background-color: #6c5ce7 !important; /* morado */
+  color: white !important;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.swal2-popup .swal2-actions button:hover {
+  background-color: #5a4bcf !important;
+}
