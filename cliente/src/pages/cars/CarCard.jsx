@@ -5,8 +5,8 @@ import Modal from '../../components/Modal';
 export const CarCard = ({ car, onEdit }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const deleteCar = () => {
-    Swal.fire({
+  const deleteCar = async () => {
+    const result = await Swal.fire({
       title: "¿Estás seguro que quieres eliminar este carro?",
       showDenyButton: true,
       showCancelButton: false,
@@ -16,22 +16,37 @@ export const CarCard = ({ car, onEdit }) => {
         confirmButton: 'swal2-confirm-btn',
         denyButton: 'swal2-deny-btn'
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire("¡Carro eliminado!", "", "success");
-      } else if (result.isDenied) {
-        Swal.fire("Acción cancelada", "", "info");
-      }
     });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:8080/api/cars/delete/${car.id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al eliminar el carro');
+        }
+
+        Swal.fire("¡Carro eliminado!", "", "success");
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000);
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire("Error", "No se pudo eliminar el carro", "error");
+      }
+    } else if (result.isDenied) {
+      Swal.fire("Acción cancelada", "", "info");
+    }
   };
 
   return (
     <>
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 space-y-2">
-        <span className="block font-bold text-xl text-gray-900">{car.marca}</span>
-        <span className="block text-lg text-gray-700">{car.modelo}</span>
-        <span className="block text-lg text-gray-700">{car.color}</span>
-        <span className="block text-lg text-gray-700">Placa {car.numeroPlaca}</span>
+        <span className="block font-bold text-xl text-gray-900">{car.brand}</span>
+        <span className="block text-lg text-gray-700">{car.model}</span>
+        <span className="block text-lg text-gray-700">Placa {car.plate}</span>
         <div className="flex items-center justify-around pt-4">
           <button
             className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg"
@@ -68,7 +83,15 @@ export const CarCard = ({ car, onEdit }) => {
         onClose={() => setModalOpen(false)}
         title={"Info"}
       >
-        <p>Más información del carro: {car.marca} {car.modelo}</p>
+        <p className='mb-4'>Más información del carro: <span className='font-bold'>
+          {car.brand} {car.model}</span></p>
+        <hr />
+        <div className='mt-4 flex flex-col'>
+          <span className='font-bold text-lg '>Datos del proveedor:  </span>
+          <span>Nombre completo: {car.provider.name} {car.provider.surname} {car.provider.lastname}</span>
+          <span>Número telefónico: {car.provider.phoneNumber} </span>
+          <span>Correo: {car.provider.email} </span>
+        </div>
       </Modal>
     </>
   );
