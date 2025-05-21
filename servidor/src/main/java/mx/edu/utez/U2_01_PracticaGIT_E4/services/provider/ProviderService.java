@@ -37,12 +37,15 @@ public class ProviderService {
     
     //findOne, save, delete, update
     public ResponseEntity<ApiResponse> save(ProviderEntity provider) {
-    ProviderEntity saved = providerRepository.save(provider);
-    return new ResponseEntity<>(
-        new ApiResponse(saved, HttpStatus.CREATED, false),
-        HttpStatus.CREATED
-    );
-}
+        try {
+            ProviderEntity savedProvider = providerRepository.save(provider);
+            ApiResponse response = new ApiResponse(savedProvider, HttpStatus.OK, false);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse errorResponse = new ApiResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, true);
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
 
 public ResponseEntity<ApiResponse> update(ProviderEntity provider) {
     if (!providerRepository.existsById(provider.getId())) {

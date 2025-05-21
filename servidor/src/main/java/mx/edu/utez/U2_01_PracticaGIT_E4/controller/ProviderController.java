@@ -17,7 +17,7 @@ import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderEntity;
 import mx.edu.utez.U2_01_PracticaGIT_E4.services.provider.ProviderService;
 
 @RestController
-@RequestMapping("/api/providers")
+@RequestMapping("/api/provider")
 @CrossOrigin(origins = "*")
 public class ProviderController {
     @Autowired
@@ -45,6 +45,12 @@ public class ProviderController {
     ) {
         provider.setId(id);
         return providerService.update(provider);
+    }
+
+    //prueba
+    @GetMapping("/test")
+    public String test() {
+        return "¡Endpoint GET funciona!";
     }
 
     @DeleteMapping("/{id}")
