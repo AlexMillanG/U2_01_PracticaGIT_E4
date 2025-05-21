@@ -6,47 +6,56 @@ export const Cars = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentCarId, setCurrentCarId] = useState(null);
+  const [providers, setProviders] = useState([]);
 
-  const proveedores = [
-    { id: '1', nombre: 'Proveedor A' },
-    { id: '2', nombre: 'Proveedor B' },
-    { id: '3', nombre: 'Proveedor C' },
-  ];
+  const [cars, setCars] = useState([]);
 
-  const [cars, setCars] = useState([
-    {
-      id: 1,
-      marca: 'Nissan',
-      modelo: 'Versa',
-      color: 'Azul',
-      numeroPlaca: 'XYZ123',
-      idProveedor: '2'
-    },
-    {
-      id: 2,
-      marca: 'Toyota',
-      modelo: 'Corolla',
-      color: 'Rojo',
-      numeroPlaca: 'ABC456',
-      idProveedor: '1'
+  const fetchCars = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/cars/');
+      const data = await response.json();
+      console.log(data)
+      setCars(data.data)
+
+    } catch (error) {
+      console.log(error)
     }
-  ]);
+  }
+  const fetchProviders = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/providers/');
+      const data = await response.json();
+      console.log(data)
+      setProviders(data.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCars();
+    fetchProviders()
+  }, []);
 
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
-    color: '',
     numeroPlaca: '',
     idProveedor: '',
   });
 
   const openModalForEdit = (car) => {
-    setFormData(car);
+    setFormData({
+      id: car.id,
+      marca: car.brand,       
+      modelo: car.model,       
+      numeroPlaca: car.plate,  
+      idProveedor: car.provider?.id || '' 
+    });
     setCurrentCarId(car.id);
     setIsEditing(true);
     setModalOpen(true);
   };
-
   const openModalForCreate = () => {
     setFormData({
       marca: '',
@@ -65,20 +74,50 @@ export const Cars = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
+  const carData = {
+    model: formData.modelo,
+    brand: formData.marca,
+    plate: formData.numeroPlaca,
+    provider: {
+      id: formData.idProveedor
+    }
+  };
+
+  try {
+    let url, method;
+    
     if (isEditing) {
-      setCars(prevCars =>
-        prevCars.map(car => car.id === currentCarId ? { ...formData, id: currentCarId } : car)
-      );
+      url = `http://localhost:8080/api/cars/update`;
+      method = 'PUT';
+      carData.id = currentCarId;
     } else {
-      const newCar = { ...formData, id: Date.now() };
-      setCars(prevCars => [...prevCars, newCar]);
+      url = 'http://localhost:8080/api/cars/save';
+      method = 'POST';
+    }
+    console.log(carData)
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(carData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al ${isEditing ? 'actualizar' : 'guardar'} el auto`);
     }
 
     setModalOpen(false);
-  };
+    fetchCars();
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
@@ -124,17 +163,6 @@ export const Cars = () => {
             />
           </div>
           <div>
-            <label className='text-gray-800'>Color:</label>
-            <input
-              type="text"
-              name="color"
-              value={formData.color}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
             <label className='text-gray-800'>Número de placa:</label>
             <input
               type="text"
@@ -155,9 +183,9 @@ export const Cars = () => {
               required
             >
               <option value="">Seleccione un proveedor</option>
-              {proveedores.map((prov) => (
+              {providers.map((prov) => (
                 <option key={prov.id} value={prov.id}>
-                  {prov.nombre}
+                  {prov.name}
                 </option>
               ))}
             </select>
