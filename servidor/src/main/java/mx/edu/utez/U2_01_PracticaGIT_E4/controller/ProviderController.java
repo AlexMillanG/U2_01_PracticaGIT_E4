@@ -21,9 +21,13 @@ import mx.edu.utez.U2_01_PracticaGIT_E4.services.provider.ProviderService;
 @CrossOrigin(origins = "*")
 public class ProviderController {
     @Autowired
-    private ProviderService providerService;
+    private final ProviderService providerService;
 
-    @GetMapping
+    public ProviderController(ProviderService providerService) {
+        this.providerService = providerService;
+    }
+
+    @GetMapping("/")
     public ResponseEntity<ApiResponse> getAllProviders() {
         return providerService.findAll();
     }
@@ -33,21 +37,20 @@ public class ProviderController {
         return providerService.findOne(id);
     }
 
-    @PostMapping
+    @PostMapping("/save")
     public ResponseEntity<ApiResponse> createProvider(@RequestBody ProviderEntity provider) {
         return providerService.save(provider);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update")
     public ResponseEntity<ApiResponse> updateProvider(
-            @PathVariable Long id,
             @RequestBody ProviderEntity provider
     ) {
-        provider.setId(id);
+
         return providerService.update(provider);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteProvider(@PathVariable Long id) {
         return providerService.delete(id);
     }

@@ -1,5 +1,7 @@
 package mx.edu.utez.U2_01_PracticaGIT_E4.services.provider;
 import mx.edu.utez.U2_01_PracticaGIT_E4.config.ApiResponse;
+import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarEntity;
+import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarRepository;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderEntity;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderRepository;
 
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = SQLException.class)
@@ -18,9 +21,12 @@ public class ProviderService {
 
     @Autowired
     private final ProviderRepository providerRepository;
+    @Autowired
+    private final CarRepository carRepository;
 
-    public ProviderService(ProviderRepository providerRepository){
+    public ProviderService(ProviderRepository providerRepository, CarRepository carRepository) {
         this.providerRepository = providerRepository;
+        this.carRepository = carRepository;
     }
 
     @Transactional(rollbackFor = SQLException.class)
@@ -37,12 +43,9 @@ public class ProviderService {
     
     //findOne, save, delete, update
     public ResponseEntity<ApiResponse> save(ProviderEntity provider) {
-    ProviderEntity saved = providerRepository.save(provider);
-    return new ResponseEntity<>(
-        new ApiResponse(saved, HttpStatus.CREATED, false),
-        HttpStatus.CREATED
-    );
-}
+
+    return new ResponseEntity<>(new ApiResponse(providerRepository.save(provider), HttpStatus.CREATED, false), HttpStatus.CREATED);
+    }
 
 public ResponseEntity<ApiResponse> update(ProviderEntity provider) {
     if (!providerRepository.existsById(provider.getId())) {
@@ -59,20 +62,32 @@ public ResponseEntity<ApiResponse> update(ProviderEntity provider) {
     );
 }
 
-public ResponseEntity<ApiResponse> delete(Long id) {
-    if (!providerRepository.existsById(id)) {
+    public ResponseEntity<ApiResponse> delete(Long id) {
+        Optional<ProviderEntity> foundProvider = providerRepository.findById(id);
+
+        if (foundProvider.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ApiResponse("Proveedor no encontrado para eliminar", HttpStatus.NOT_FOUND, true),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        List<CarEntity> cars = carRepository.findCarsByProvider(foundProvider.get());
+
+        if (!cars.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ApiResponse("No se puede eliminar el proveedor porque tiene autos asignados", HttpStatus.CONFLICT, true),
+                    HttpStatus.CONFLICT
+            );
+        }
+
+        providerRepository.deleteById(id);
         return new ResponseEntity<>(
-            new ApiResponse("Proveedor no encontrado para eliminar", HttpStatus.NOT_FOUND, true),
-            HttpStatus.NOT_FOUND
+                new ApiResponse("Proveedor eliminado correctamente", HttpStatus.OK, false),
+                HttpStatus.OK
         );
     }
 
-    providerRepository.deleteById(id);
-    return new ResponseEntity<>(
-        new ApiResponse("Proveedor eliminado correctamente", HttpStatus.OK, false),
-        HttpStatus.OK
-    );
-}
 
 public ResponseEntity<ApiResponse> findOne(Long id) {
     return providerRepository.findById(id)
