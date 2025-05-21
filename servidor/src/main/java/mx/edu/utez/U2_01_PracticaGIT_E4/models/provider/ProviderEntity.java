@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarEntity;
 
 
 @Entity
@@ -25,6 +27,12 @@ public class ProviderEntity {
     @Column(length = 100, nullable = false)
     private String email;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CarEntity> cars;
+
+
+
     public ProviderEntity(){
 
     }
@@ -37,6 +45,17 @@ public class ProviderEntity {
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
+
+
+    public List<CarEntity> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<CarEntity> cars) {
+        this.cars = cars;
+    }
+
+
 
     public Long getId() {
         return id;
