@@ -8,7 +8,7 @@ function Navbar() {
           <Link to="/proveedores" className="hover:text-gray-300">Proveedores</Link>
         </li>
         <li>
-          <Link to="/automoviles" className="hover:text-gray-300">Automóviles</Link>
+          <Link to="/cars" className="hover:text-gray-300">Automóviles</Link>
         </li>
       </ul>
     </nav>
