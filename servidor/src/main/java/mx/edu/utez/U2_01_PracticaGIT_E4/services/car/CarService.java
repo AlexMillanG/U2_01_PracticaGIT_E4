@@ -2,6 +2,7 @@ package mx.edu.utez.U2_01_PracticaGIT_E4.services.car;
 
 import mx.edu.utez.U2_01_PracticaGIT_E4.config.ApiResponse;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarRepository;
+import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarWithProviderDto;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderEntity;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderRepository;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.car.CarEntity;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = SQLException.class)
@@ -28,14 +32,19 @@ public class CarService {
         this.providerRepository = providerRepository;
     }
 
-    public ResponseEntity<ApiResponse> findAll(){
-        return new ResponseEntity<>(new ApiResponse(carRepository.findAll(),HttpStatus.OK,false), HttpStatus.OK);
+    public ResponseEntity<ApiResponse> findAll() {
+        List<CarEntity> cars = carRepository.findAll();
+        List<CarWithProviderDto> carDtos = cars.stream()
+                .map(CarWithProviderDto::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(new ApiResponse(carDtos, HttpStatus.OK, false), HttpStatus.OK);
     }
 
     public ResponseEntity<ApiResponse> findOne(Long id) {
         Optional<CarEntity> optionalCar = carRepository.findById(id);
         if (optionalCar.isPresent()) {
-            return new ResponseEntity<>(new ApiResponse(optionalCar.get(), HttpStatus.OK, false), HttpStatus.OK);
+            CarWithProviderDto carDto = new CarWithProviderDto(optionalCar.get());
+            return new ResponseEntity<>(new ApiResponse(carDto, HttpStatus.OK, false), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ApiResponse("Car not found", HttpStatus.NOT_FOUND, true), HttpStatus.NOT_FOUND);
     }

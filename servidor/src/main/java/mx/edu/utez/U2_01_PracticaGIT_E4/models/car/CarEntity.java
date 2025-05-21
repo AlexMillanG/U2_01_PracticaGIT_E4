@@ -1,5 +1,6 @@
 package mx.edu.utez.U2_01_PracticaGIT_E4.models.car;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import mx.edu.utez.U2_01_PracticaGIT_E4.models.provider.ProviderEntity;
 
@@ -17,6 +18,7 @@ public class CarEntity {
 
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
+    @JsonBackReference
     private ProviderEntity provider;
 
     public CarEntity() {
